@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电视选购 Copilot — Multi-Agent 导购系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header .status {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+  }
+  header .status.llm-on { background: #27ae60; }
+  header .status.llm-off { background: #e67e22; }
+  .main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  .chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e0e0e0;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .message {
+    margin-bottom: 16px;
+    max-width: 80%;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .message.user {
+    margin-left: auto;
+    text-align: right;
+  }
+  .message .bubble {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-align: left;
+  }
+  .message.user .bubble {
+    background: #3b82f6;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .message.assistant .bubble {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 4px;
+  }
+  .message .meta {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+  .chat-input {
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    background: white;
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+  }
+  .chat-input input:focus { border-color: #3b82f6; }
+  .chat-input button {
+    padding: 10px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .chat-input button:hover { background: #2563eb; }
+  .chat-input button:disabled { background: #ccc; cursor: not-allowed; }
+
+  .trace-panel {
+    width: 380px;
+    background: #fafbfc;
+    display: flex;
+    flex-direction: column;
+  }
+  .trace-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .trace-header .toggle { cursor: pointer; font-size: 12px; color: #3b82f6; }
+  .trace-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+  .trace-turn {
+    margin-bottom: 16px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #eee;
+  }
+  .trace-turn-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .trace-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed #f5f5f5;
+  }
+  .trace-item:last-child { border-bottom: none; }
+  .trace-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 48px;
+    text-align: center;
+  }
+  .trace-badge.router { background: #e3f2fd; color: #1565c0; }
+  .trace-badge.agent { background: #f3e5f5; color: #7b1fa2; }
+  .trace-badge.rag { background: #e8f5e9; color: #2e7d32; }
+  .trace-badge.parse { background: #fff3e0; color: #e65100; }
+  .trace-badge.replanner { background: #fce4ec; color: #c62828; }
+  .trace-badge.compliance { background: #fff8e1; color: #f57f17; }
+  .trace-badge.guard { background: #ffebee; color: #c62828; }
+  .trace-badge.terminate { background: #eceff1; color: #546e7a; }
+  .trace-badge.search { background: #e0f7fa; color: #00838f; }
+  .trace-badge.calc { background: #f1f8e9; color: #558b2f; }
+  .trace-badge.analyze { background: #fbe9e7; color: #d84315; }
+  .trace-badge.ask { background: #e8eaf6; color: #283593; }
+  .trace-badge.check { background: #efebe9; color: #4e342e; }
+  .trace-badge.classify { background: #e0f2f1; color: #00695c; }
+  .trace-badge.limit { background: #fafafa; color: #616161; }
+  .trace-detail { color: #555; line-height: 1.4; flex: 1; }
+  .trace-status { font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+  .trace-status.ok { background: #e8f5e9; color: #2e7d32; }
+  .trace-status.warning { background: #fff3e0; color: #e65100; }
+  .trace-status.fail { background: #ffebee; color: #c62828; }
+  .trace-status.triggered { background: #ffebee; color: #c62828; }
+  .trace-status.missing { background: #fff3e0; color: #e65100; }
+  .trace-status.pass { background: #e8f5e9; color: #2e7d32; }
+
+  .slots-bar {
+    padding: 8px 16px;
+    background: #f0f4ff;
+    border-top: 1px solid #e0e0e0;
+    font-size: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .slot-tag {
+    padding: 3px 8px;
+    background: white;
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    color: #3730a3;
+  }
+  .slot-tag.empty { color: #999; border-color: #ddd; }
+
+  .quick-questions {
+    padding: 8px 16px;
+    background: #f9fafb;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .quick-btn {
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #555;
+  }
+  .quick-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+  .empty-state h3 { font-size: 16px; margin-bottom: 8px; color: #666; }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>电视选购 Copilot — Multi-Agent 导购系统</h1>
+  <span class="status" id="llmStatus">检测中...</span>
+</header>
+<div class="main">
+  <div class="chat-panel">
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-state">
+        <h3>电视导购助手</h3>
+        <p>我可以帮你推荐电视、查询优惠活动、了解配送安装政策。<br>试试问："预算4000，客厅2.5米，追剧用，推荐个电视"</p>
+      </div>
+    </div>
+    <div class="quick-questions" id="quickQuestions">
+      <span class="quick-btn" onclick="sendQuick('预算4000，客厅2.5米，追剧看电影，推荐个电视')">追剧推荐</span>
+      <span class="quick-btn" onclick="sendQuick('三千预算，玩PS5，要120Hz以上')">游戏电视</span>
+      <span class="quick-btn" onclick="sendQuick('现在有什么优惠活动？')">优惠查询</span>
+      <span class="quick-btn" onclick="sendQuick('配送和安装怎么收费？')">配送安装</span>
+      <span class="quick-btn" onclick="sendQuick('我要退货')">售后转人工</span>
+    </div>
+    <div class="slots-bar" id="slotsBar">
+      <span class="slot-tag empty">预算：未设置</span>
+      <span class="slot-tag empty">尺寸/距离：未设置</span>
+      <span class="slot-tag empty">用途：未设置</span>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+  <div class="trace-panel">
+    <div class="trace-header">
+      <span>执行轨迹</span>
+      <span class="toggle" onclick="clearTrace()">清空</span>
+    </div>
+    <div class="trace-content" id="traceContent">
+      <div style="text-align:center;color:#999;padding:40px 20px;font-size:13px;">发送消息后显示 Agent 调用链</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let sessionId = null;
+let turnCount = 0;
+
+async function checkHealth() {
+  try {
+    const res = await fetch('/health');
+    const data = await res.json();
+    const el = document.getElementById('llmStatus');
+    if (data.llm_available) {
+      el.textContent = 'LLM 已连接';
+      el.className = 'status llm-on';
+    } else {
+      el.textContent = '演示模式（无LLM）';
+      el.className = 'status llm-off';
+    }
+  } catch(e) {
+    document.getElementById('llmStatus').textContent = '服务未连接';
+  }
+}
+
+function sendQuick(text) {
+  document.getElementById('messageInput').value = text;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const message = input.value.trim();
+  if (!message) return;
+  input.value = '';
+  document.getElementById('sendBtn').disabled = true;
+
+  // 移除空状态
+  const empty = document.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  // 添加用户消息
+  addMessage('user', message);
+
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message, session_id: sessionId})
+    });
+    const data = await res.json();
+    sessionId = data.session_id;
+    addMessage('assistant', data.answer, data.route);
+    addTrace(data.trace, message);
+    updateSlots(data.slots);
+  } catch(e) {
+    addMessage('assistant', '抱歉，服务暂时不可用，请稍后重试。');
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addMessage(role, content, route) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const routeLabel = route ? `[${route}]` : '';
+  div.innerHTML = `<div class="bubble">${escapeHtml(content)}</div>${role==='assistant'&&route?`<div class="meta">${routeLabel}</div>`:''}`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addTrace(trace, userMsg) {
+  turnCount++;
+  const container = document.getElementById('traceContent');
+  if (turnCount === 1) container.innerHTML = '';
+
+  const turnDiv = document.createElement('div');
+  turnDiv.className = 'trace-turn';
+  let html = `<div class="trace-turn-title">第 ${turnCount} 轮 · ${escapeHtml(userMsg.substring(0,20))}${userMsg.length>20?'...':''}</div>`;
+
+  trace.forEach(item => {
+    const statusClass = item.status || 'ok';
+    html += `<div class="trace-item">
+      <span class="trace-badge ${item.kind}">${item.name}</span>
+      <span class="trace-detail">${escapeHtml(item.detail)}</span>
+      <span class="trace-status ${statusClass}">${statusClass}</span>
+    </div>`;
+  });
+
+  turnDiv.innerHTML = html;
+  container.appendChild(turnDiv);
+  container.scrollTop = container.scrollHeight;
+}
+
+function updateSlots(slots) {
+  if (!slots) return;
+  const bar = document.getElementById('slotsBar');
+  const budget = slots.budget ? `¥${slots.budget}` : '未设置';
+  const size = slots.size ? `${slots.size}寸` : (slots.distance ? `${slots.distance}米` : '未设置');
+  const useCases = slots.use_cases && slots.use_cases.length ? slots.use_cases.join('、') : '未设置';
+  const refresh = slots.min_refresh ? `≥${slots.min_refresh}Hz` : null;
+  bar.innerHTML = `
+    <span class="slot-tag ${slots.budget?'':'empty'}">预算：${budget}</span>
+    <span class="slot-tag ${(slots.size||slots.distance)?'':'empty'}">尺寸/距离：${size}</span>
+    <span class="slot-tag ${(slots.use_cases&&slots.use_cases.length)?'':'empty'}">用途：${useCases}</span>
+    ${refresh ? `<span class="slot-tag">刷新率：${refresh}</span>` : ''}
+  `;
+}
+
+function clearTrace() {
+  document.getElementById('traceContent').innerHTML = '<div style="text-align:center;color:#999;padding:40px 20px;font-size:13px;">执行轨迹已清空</div>';
+  turnCount = 0;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+checkHealth();
+</script>
+</body>
+</html>

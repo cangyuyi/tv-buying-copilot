@@ -1,0 +1,279 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "小米电视 EA55 2025款",
+      "brand": "小米",
+      "price": 1799,
+      "size": 55,
+      "panel_type": "LCD",
+      "resolution": "4K",
+      "refresh_rate": 60,
+      "brightness_nits": 300,
+      "color_gamut": "78% DCI-P3",
+      "use_cases": ["追剧", "租房", "卧室"],
+      "stock": true,
+      "highlights": ["金属全面屏", "远场语音", "4K HDR"]
+    },
+    {
+      "id": "p2",
+      "name": "TCL 55Q10G Pro",
+      "brand": "TCL",
+      "price": 3999,
+      "size": 55,
+      "panel_type": "Mini LED",
+      "resolution": "4K",
+      "refresh_rate": 144,
+      "brightness_nits": 1200,
+      "color_gamut": "98% DCI-P3",
+      "use_cases": ["电影", "游戏", "客厅"],
+      "stock": true,
+      "highlights": ["Mini LED 896分区", "144Hz高刷", "4K 144Hz HDMI2.1"]
+    },
+    {
+      "id": "p3",
+      "name": "海信 55E8K",
+      "brand": "海信",
+      "price": 4499,
+      "size": 55,
+      "panel_type": "ULED X",
+      "resolution": "4K",
+      "refresh_rate": 144,
+      "brightness_nits": 1300,
+      "color_gamut": "99% DCI-P3",
+      "use_cases": ["电影", "游戏", "明亮客厅", "客厅"],
+      "stock": true,
+      "highlights": ["ULED X感知画质", "1296分区", "信芯X画质芯片"]
+    },
+    {
+      "id": "p4",
+      "name": "小米电视 ES65 2025款",
+      "brand": "小米",
+      "price": 2999,
+      "size": 65,
+      "panel_type": "LCD",
+      "resolution": "4K",
+      "refresh_rate": 60,
+      "brightness_nits": 450,
+      "color_gamut": "85% DCI-P3",
+      "use_cases": ["追剧", "客厅", "老人"],
+      "stock": true,
+      "highlights": ["多分区背光", "4K HDR10+", "远场语音"]
+    },
+    {
+      "id": "p5",
+      "name": "TCL 65Q10G Pro",
+      "brand": "TCL",
+      "price": 5499,
+      "size": 65,
+      "panel_type": "Mini LED",
+      "resolution": "4K",
+      "refresh_rate": 144,
+      "brightness_nits": 1400,
+      "color_gamut": "98% DCI-P3",
+      "use_cases": ["电影", "游戏", "体育", "客厅", "多人观看"],
+      "stock": true,
+      "highlights": ["Mini LED 1344分区", "144Hz高刷", "安桥2.1音响"]
+    },
+    {
+      "id": "p6",
+      "name": "海信 65E8K",
+      "brand": "海信",
+      "price": 6499,
+      "size": 65,
+      "panel_type": "ULED X",
+      "resolution": "4K",
+      "refresh_rate": 144,
+      "brightness_nits": 1500,
+      "color_gamut": "99% DCI-P3",
+      "use_cases": ["电影", "游戏", "明亮客厅", "客厅", "多人观看"],
+      "stock": true,
+      "highlights": ["ULED X", "2000分区", "信芯X芯片", "4K 144Hz"]
+    },
+    {
+      "id": "p7",
+      "name": "小米电视 EA75 2025款",
+      "brand": "小米",
+      "price": 3499,
+      "size": 75,
+      "panel_type": "LCD",
+      "resolution": "4K",
+      "refresh_rate": 60,
+      "brightness_nits": 350,
+      "color_gamut": "78% DCI-P3",
+      "use_cases": ["追剧", "客厅", "老人"],
+      "stock": true,
+      "highlights": ["75寸大屏", "金属全面屏", "远场语音"]
+    },
+    {
+      "id": "p8",
+      "name": "TCL 75Q10G Pro",
+      "brand": "TCL",
+      "price": 7999,
+      "size": 75,
+      "panel_type": "Mini LED",
+      "resolution": "4K",
+      "refresh_rate": 144,
+      "brightness_nits": 1600,
+      "color_gamut": "98% DCI-P3",
+      "use_cases": ["电影", "游戏", "体育", "客厅", "多人观看", "明亮客厅"],
+      "stock": false,
+      "highlights": ["Mini LED 2240分区", "144Hz高刷", "安桥2.1音响", "4K 144Hz"]
+    },
+    {
+      "id": "p9",
+      "name": "创维 43A3D",
+      "brand": "创维",
+      "price": 1299,
+      "size": 43,
+      "panel_type": "LCD",
+      "resolution": "4K",
+      "refresh_rate": 60,
+      "brightness_nits": 250,
+      "color_gamut": "70% DCI-P3",
+      "use_cases": ["租房", "卧室", "老人"],
+      "stock": true,
+      "highlights": ["43寸小屏", "光学防蓝光", "护眼模式"]
+    },
+    {
+      "id": "p10",
+      "name": "索尼 XR-55X90L",
+      "brand": "索尼",
+      "price": 5999,
+      "size": 55,
+      "panel_type": "Full Array LED",
+      "resolution": "4K",
+      "refresh_rate": 120,
+      "brightness_nits": 1100,
+      "color_gamut": "95% DCI-P3",
+      "use_cases": ["电影", "游戏", "体育"],
+      "stock": true,
+      "highlights": ["XR认知芯片", "游戏增强器", "HDMI2.1", "多声道屏幕声场"]
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc1",
+      "title": "电视选购：观看距离与尺寸对照表",
+      "content": "观看距离决定电视尺寸。2米以内选43寸，2-2.8米选55寸，2.8-3.5米选65寸，3.5米以上选75寸。尺寸宁大勿小，但要考虑客厅宽度和电梯入户。[doc1]"
+    },
+    {
+      "id": "doc2",
+      "title": "电视面板类型详解：LCD / Mini LED / OLED",
+      "content": "LCD价格低但对比度一般；Mini LED分区背光，亮度高对比度好，是目前主流之选；OLED自发光像素级控光，黑位纯净但亮度有限且有烧屏风险。预算充足追求画质选Mini LED，追求极致黑位选OLED。[doc2]"
+    },
+    {
+      "id": "doc3",
+      "title": "游戏电视选购要点：刷新率与接口",
+      "content": "玩PS5/Xbox等主机游戏建议120Hz以上刷新率，必须有HDMI2.1接口支持4K 120Hz输入。输入延迟越低越好，建议低于20ms。VRR可变刷新率和ALLM自动低延迟模式是加分项。[doc3]"
+    },
+    {
+      "id": "doc4",
+      "title": "明亮客厅选购：亮度与抗光",
+      "content": "客厅采光好、白天观看多的场景，建议亮度800nits以上，优先Mini LED或ULED X等高亮度面板。抗光屏和广视角膜可以减少反光。不建议在明亮环境使用OLED。[doc4]"
+    },
+    {
+      "id": "doc5",
+      "title": "电视选购通用建议",
+      "content": "选购电视四要素：尺寸（由观看距离决定）、画质（面板+亮度+色域+刷新率）、音质（有无独立音响单元）、智能系统（操作流畅度和资源）。预算分配建议：55寸2000-4000，65寸3000-6000，75寸5000-8000。以上参数仅供参考，以商品详情页为准。[doc5]"
+    }
+  ],
+  "promotions": [
+    {
+      "id": "promo1",
+      "name": "国家以旧换新补贴",
+      "type": "以旧换新",
+      "description": "电视品类参与国家以旧换新，补贴金额为售价的15%，上限2000元。需回收旧电视，回收价另计。",
+      "discount_type": "percent",
+      "discount_value": 15,
+      "max_discount": 2000,
+      "threshold": 0,
+      "tags": ["国补", "以旧换新", "补贴"]
+    },
+    {
+      "id": "promo2",
+      "name": "满3000减300",
+      "type": "满减",
+      "description": "电视品类满3000元减300元，可与以旧换新叠加。",
+      "discount_type": "fixed",
+      "discount_value": 300,
+      "threshold": 3000,
+      "tags": ["满减", "优惠"]
+    },
+    {
+      "id": "promo3",
+      "name": "限时直降",
+      "type": "限时折扣",
+      "description": "指定型号限时直降500元，活动截止至本月底。",
+      "discount_type": "fixed",
+      "discount_value": 500,
+      "threshold": 0,
+      "tags": ["直降", "限时", "活动"]
+    },
+    {
+      "id": "promo4",
+      "name": "30天价保",
+      "type": "价保",
+      "description": "购买后30天内降价可申请差价退还，需在订单页手动申请。",
+      "discount_type": "fixed",
+      "discount_value": 0,
+      "threshold": 0,
+      "tags": ["价保", "保价", "售后"]
+    },
+    {
+      "id": "promo5",
+      "name": "新人优惠券",
+      "type": "优惠券",
+      "description": "新用户可领200元电视品类券，满2000可用，可与满减叠加。",
+      "discount_type": "fixed",
+      "discount_value": 200,
+      "threshold": 2000,
+      "tags": ["优惠券", "新人", "满减"]
+    }
+  ],
+  "fulfillment": [
+    {
+      "id": "fulfill1",
+      "name": "配送时效",
+      "description": "全国大部分地区48小时内发货，江浙沪皖次日达，偏远地区3-5天。大件商品送货上门，支持预约配送时间。"
+    },
+    {
+      "id": "fulfill2",
+      "name": "安装服务",
+      "description": "55寸及以上含免费基础座装，挂装需额外支付支架费（55寸99元，65寸149元，75寸199元）。安装师傅上门时收取，支持移动支架安装。"
+    },
+    {
+      "id": "fulfill3",
+      "name": "入户说明",
+      "description": "65寸及以上电视需确认电梯和入户门尺寸，标准电梯可容纳75寸。无电梯楼层超过3楼可能收取上楼费，具体以配送师傅确认为准。"
+    },
+    {
+      "id": "fulfill4",
+      "name": "运费政策",
+      "description": "电视品类全国包邮（港澳台及偏远地区除外），七天无理由退换需承担退货运费（约100-200元）。"
+    }
+  ],
+  "aftersales": [
+    {
+      "id": "after1",
+      "name": "七天无理由退货",
+      "description": "签收后7天内，商品完好不影响二次销售可申请无理由退货，需承担退货运费。已安装或已激活不支持无理由退货。"
+    },
+    {
+      "id": "after2",
+      "name": "整机保修一年",
+      "description": "电视整机保修一年，主要部件（显示屏、主板、电源板）保修三年。保修期内非人为损坏免费维修。"
+    },
+    {
+      "id": "after3",
+      "name": "质量问题退换",
+      "description": "签收后7天内出现质量问题可退货，15天内可换货。需联系客服安排检测，检测确认后办理退换。"
+    },
+    {
+      "id": "after4",
+      "name": "发票说明",
+      "description": "默认开具电子发票，下单时可选择开具增值税专用发票。发票在收货后7个工作日内开具，可在订单页下载。"
+    }
+  ],
+  "disclaimer": "本导购助手提供的商品参数、价格、促销信息仅供参考，实际以商品详情页和结算页为准。涉及退换货、发票、投诉等问题请联系人工客服处理。"
+}

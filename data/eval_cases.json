@@ -1,0 +1,236 @@
+{
+  "version": "1.0",
+  "description": "电视选购 Copilot Multi-Agent 导购系统评测集，按正常/边界/异常三类分层",
+  "pass_thresholds": {
+    "normal": 0.9,
+    "boundary": 0.5,
+    "abnormal": 0.99
+  },
+  "cases": [
+    {
+      "id": "N01",
+      "category": "normal",
+      "input": "预算4000，客厅2.5米，追剧看电影，推荐个电视",
+      "expected_route": "product",
+      "expected_slots": {"budget": 4000, "distance": 2.5, "use_cases": ["追剧", "电影", "客厅"]},
+      "expected_behavior": "返回3款以内推荐，价格不超预算，包含引用标注",
+      "check_points": ["route_correct", "slots_extracted", "budget_respected", "has_citation"]
+    },
+    {
+      "id": "N02",
+      "category": "normal",
+      "input": "现在有什么优惠活动？",
+      "expected_route": "promotion",
+      "expected_slots": {},
+      "expected_behavior": "列出当前促销活动，包含优惠叠加说明",
+      "check_points": ["route_correct", "lists_promotions"]
+    },
+    {
+      "id": "N03",
+      "category": "normal",
+      "input": "配送和安装怎么收费？",
+      "expected_route": "fulfillment",
+      "expected_slots": {},
+      "expected_behavior": "说明配送时效和安装费用",
+      "check_points": ["route_correct", "mentions_delivery", "mentions_installation"]
+    },
+    {
+      "id": "N04",
+      "category": "normal",
+      "input": "推荐个电视",
+      "expected_route": "clarify",
+      "expected_slots": {},
+      "expected_behavior": "信息不足，先问预算",
+      "check_points": ["route_correct", "asks_budget_first"]
+    },
+    {
+      "id": "N05",
+      "category": "normal",
+      "input": "三千预算，55寸，追剧用",
+      "expected_route": "product",
+      "expected_slots": {"budget": 3000, "size": 55, "use_cases": ["追剧"]},
+      "expected_behavior": "中文数字预算正确识别，返回推荐",
+      "check_points": ["route_correct", "chinese_number_parsed", "budget_respected"]
+    },
+    {
+      "id": "N06",
+      "category": "normal",
+      "input": "客厅3米，买多大的电视合适？",
+      "expected_route": "clarify",
+      "expected_slots": {"distance": 3.0},
+      "expected_behavior": "提取距离，但缺预算和用途，继续澄清",
+      "check_points": ["route_correct", "distance_parsed", "asks_missing_slots"]
+    },
+    {
+      "id": "N07",
+      "category": "normal",
+      "input": "预算5000，玩PS5，要120Hz以上，65寸",
+      "expected_route": "product",
+      "expected_slots": {"budget": 5000, "size": 65, "use_cases": ["游戏"], "min_refresh": 120},
+      "expected_behavior": "筛选120Hz以上游戏电视，返回候选",
+      "check_points": ["route_correct", "refresh_filtered", "gaming_use_case"]
+    },
+    {
+      "id": "N08",
+      "category": "normal",
+      "input": "给老人买个电视，操作简单的，2000左右，55寸",
+      "expected_route": "product",
+      "expected_slots": {"budget": 2000, "size": 55, "use_cases": ["老人"]},
+      "expected_behavior": "识别老人用途，推荐操作简单的型号",
+      "check_points": ["route_correct", "elderly_use_case", "budget_respected"]
+    },
+    {
+      "id": "N09",
+      "category": "normal",
+      "input": "客厅很亮，白天也看，预算6000，65寸",
+      "expected_route": "product",
+      "expected_slots": {"budget": 6000, "size": 65, "use_cases": ["明亮客厅", "客厅"]},
+      "expected_behavior": "识别明亮客厅场景，优先高亮度型号",
+      "check_points": ["route_correct", "bright_room_detected", "high_brightness_preferred"]
+    },
+    {
+      "id": "N10",
+      "category": "normal",
+      "input": "TCL 55Q10G Pro和海信55E8K哪个好？",
+      "expected_route": "product",
+      "expected_slots": {},
+      "expected_behavior": "识别对比意图，返回两款参数对比",
+      "check_points": ["route_correct", "comparison_intent", "mentions_both_models"]
+    },
+    {
+      "id": "N11",
+      "category": "normal",
+      "input": "以旧换新怎么操作？能补贴多少？",
+      "expected_route": "promotion",
+      "expected_slots": {},
+      "expected_behavior": "说明以旧换新补贴规则和金额",
+      "check_points": ["route_correct", "mentions_trade_in", "mentions_subsidy"]
+    },
+    {
+      "id": "N12",
+      "category": "normal",
+      "input": "下单后几天能送到？",
+      "expected_route": "fulfillment",
+      "expected_slots": {},
+      "expected_behavior": "说明配送时效",
+      "check_points": ["route_correct", "mentions_delivery_time"]
+    },
+    {
+      "id": "N13",
+      "category": "normal",
+      "input": "挂装收费吗？65寸的",
+      "expected_route": "fulfillment",
+      "expected_slots": {"size": 65},
+      "expected_behavior": "说明挂装费用，按尺寸报价",
+      "check_points": ["route_correct", "mentions_wall_mount", "size_specific_price"]
+    },
+    {
+      "id": "N14",
+      "category": "normal",
+      "input": "预算8000，75寸，客厅用，看电影玩游戏",
+      "expected_route": "product",
+      "expected_slots": {"budget": 8000, "size": 75, "use_cases": ["客厅", "电影", "游戏"]},
+      "expected_behavior": "大屏高预算推荐，注意库存状态",
+      "check_points": ["route_correct", "large_size", "budget_respected"]
+    },
+    {
+      "id": "N15",
+      "category": "normal",
+      "input": "租房过渡用，小一点的，1500以内",
+      "expected_route": "product",
+      "expected_slots": {"budget": 1500, "use_cases": ["租房"]},
+      "expected_behavior": "识别租房用途，推荐小尺寸低价型号",
+      "check_points": ["route_correct", "rental_use_case", "low_budget"]
+    },
+    {
+      "id": "B01",
+      "category": "boundary",
+      "input": "不玩游戏，只追剧，55寸，3000以内",
+      "expected_route": "product",
+      "expected_slots": {"budget": 3000, "size": 55, "use_cases": ["追剧"]},
+      "expected_behavior": "否定句处理：排除游戏用途，只保留追剧",
+      "check_points": ["route_correct", "negation_handled", "no_game_in_use_cases"]
+    },
+    {
+      "id": "B02",
+      "category": "boundary",
+      "input": "观看距离2米5，预算4000，追剧",
+      "expected_route": "product",
+      "expected_slots": {"budget": 4000, "distance": 2.5, "use_cases": ["追剧"]},
+      "expected_behavior": "口语距离'2米5'正确解析为2.5米",
+      "check_points": ["route_correct", "colloquial_distance_parsed"]
+    },
+    {
+      "id": "B03",
+      "category": "boundary",
+      "input": "3k预算，65寸，看电影",
+      "expected_route": "product",
+      "expected_slots": {"budget": 3000, "size": 65, "use_cases": ["电影"]},
+      "expected_behavior": "缩写'3k'正确解析为3000",
+      "check_points": ["route_correct", "k_abbreviation_parsed"]
+    },
+    {
+      "id": "B04",
+      "category": "boundary",
+      "input": "预算1万，要最好的电视",
+      "expected_route": "product",
+      "expected_slots": {"budget": 10000},
+      "expected_behavior": "高预算推荐，不编造超出商品库的型号",
+      "check_points": ["route_correct", "high_budget", "no_hallucination"]
+    },
+    {
+      "id": "B05",
+      "category": "boundary",
+      "input": "1000块以下能买到电视吗",
+      "expected_route": "product",
+      "expected_slots": {"budget": 1000},
+      "expected_behavior": "低预算可能无候选，给出放宽建议",
+      "check_points": ["route_correct", "low_budget_handled", "suggestion_when_no_match"]
+    },
+    {
+      "id": "B06",
+      "category": "boundary",
+      "input": "随便推荐个电视呗",
+      "expected_route": "clarify",
+      "expected_slots": {},
+      "expected_behavior": "模糊需求，引导澄清",
+      "check_points": ["route_correct", "asks_clarification"]
+    },
+    {
+      "id": "B07",
+      "category": "boundary",
+      "input": "预算4k，打游戏，要高刷",
+      "expected_route": "clarify",
+      "expected_slots": {"budget": 4000, "use_cases": ["游戏"]},
+      "expected_behavior": "缺尺寸/距离，先澄清",
+      "check_points": ["route_correct", "gaming_use_case", "asks_size"]
+    },
+    {
+      "id": "A01",
+      "category": "abnormal",
+      "input": "我要退货，电视屏幕碎了",
+      "expected_route": "handoff",
+      "expected_slots": {},
+      "expected_behavior": "售后高风险，强制转人工，不自行处理",
+      "check_points": ["route_correct", "handoff_triggered", "no_self_processing"]
+    },
+    {
+      "id": "A02",
+      "category": "abnormal",
+      "input": "我要投诉你们客服，给我转接",
+      "expected_route": "handoff",
+      "expected_slots": {},
+      "expected_behavior": "投诉高风险，强制转人工",
+      "check_points": ["route_correct", "handoff_triggered"]
+    },
+    {
+      "id": "A03",
+      "category": "abnormal",
+      "input": "今天天气怎么样",
+      "expected_route": "fallback",
+      "expected_slots": {},
+      "expected_behavior": "非相关问题，兜底回复并引导到电视导购",
+      "check_points": ["route_correct", "fallback_response", "guides_to_tv"]
+    }
+  ]
+}

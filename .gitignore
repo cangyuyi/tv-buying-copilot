@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+memory/
+*.json.tmp
+_files_to_push.json
+_collect_files.py
+.DS_Store
+.vercel

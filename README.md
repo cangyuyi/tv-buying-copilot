@@ -5,13 +5,13 @@
 ![Multi-Agent](https://img.shields.io/badge/Architecture-Multi--Agent-purple)
 ![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-orange)
 ![MCP](https://img.shields.io/badge/MCP-Tool_Server-blue)
-![Demo](https://img.shields.io/badge/Demo-Live-green)
+![Demo](https://img.shields.io/badge/Demo-Static-blue)
 
 > **项目状态：实习后独立重做 / 独立原型**  
 > **我的角色：** 基于实习期间参与设计的 AI 导购项目，独立完成产品设计、Agent 编排、MCP 工具、评测与代码实现。  
 > **数据范围：** 知识库为静态样例，评测使用 25 条模拟测试用例；文中指标均来自这组样例。
 
-**👉 [在线体验静态演示](https://alaraby527.github.io/tv-buying-copilot/)**
+**👉 [查看项目源码与资料](https://github.com/cangyuyi/tv-buying-copilot)**
 
 > 从零自研 Python 代码的 Multi-Agent 电视导购系统，零第三方依赖，clone 即跑。
 >
@@ -256,11 +256,11 @@ V1.1 剩余 2 个未满分 Case：国补和以旧换新的回答偏通用，未�
 
 ## 演示方式
 
-### 方式一：在线静态演示（推荐）
+### 方式一：查看项目仓库
 
-**👉 [https://alaraby527.github.io/tv-buying-copilot/](https://alaraby527.github.io/tv-buying-copilot/)**
+**👉 [https://github.com/cangyuyi/tv-buying-copilot](https://github.com/cangyuyi/tv-buying-copilot)**
 
-预填充3轮示例对话（商品推荐→优惠查询→售后转人工）和完整的 Agent 执行轨迹，无需安装即可体验界面和架构。
+仓库提供完整源码、知识库、评测报告和演示截图。静态演示文件位于 `docs/index.html`，可下载后用浏览器打开，查看预填充的3轮示例对话（商品推荐→优惠查询→售后转人工）和完整的 Agent 执行轨迹。
 
 ### 方式二：查看架构文档和评测报告
 
@@ -285,7 +285,7 @@ python eval.py
 
 ## 在线访问
 
-请直接使用 README 顶部的 GitHub Pages 演示。仓库中的 `eval.py` 可用于评测脚本审阅，服务端源码仅作为实现材料保留。
+README 顶部链接指向本项目的 GitHub 仓库，可在线查看源码和资料。静态演示请下载 `docs/index.html` 后用浏览器打开；仓库页面本身不运行导购服务。
 
 ## 项目结构
 

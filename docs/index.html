@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电视选购 Copilot — Multi-Agent 导购系统（演示版）</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa; color: #1a1a2e; height: 100vh; display: flex; flex-direction: column;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 12px 24px;
+    display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header .status { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: #e67e22; }
+  .demo-banner {
+    background: linear-gradient(90deg, #fef3c7, #fde68a); color: #92400e; padding: 8px 24px;
+    font-size: 13px; text-align: center; border-bottom: 1px solid #fcd34d;
+  }
+  .demo-banner a { color: #92400e; font-weight: 600; text-decoration: underline; }
+  .main { flex: 1; display: flex; overflow: hidden; }
+  .chat-panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #e0e0e0; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; }
+  .message { margin-bottom: 16px; max-width: 80%; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .message.user { margin-left: auto; text-align: right; }
+  .message .bubble {
+    display: inline-block; padding: 10px 16px; border-radius: 12px; font-size: 14px;
+    line-height: 1.6; white-space: pre-wrap; word-break: break-word; text-align: left;
+  }
+  .message.user .bubble { background: #3b82f6; color: white; border-bottom-right-radius: 4px; }
+  .message.assistant .bubble { background: white; border: 1px solid #e0e0e0; border-bottom-left-radius: 4px; }
+  .message .meta { font-size: 11px; color: #999; margin-top: 4px; }
+  .chat-input { padding: 16px; border-top: 1px solid #e0e0e0; background: white; display: flex; gap: 8px; }
+  .chat-input input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; background: #f9fafb; color: #999; }
+  .chat-input button { padding: 10px 20px; background: #ccc; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: not-allowed; }
+  .trace-panel { width: 380px; background: #fafbfc; display: flex; flex-direction: column; }
+  .trace-header { padding: 12px 16px; border-bottom: 1px solid #e0e0e0; font-size: 14px; font-weight: 600; }
+  .trace-content { flex: 1; overflow-y: auto; padding: 12px; }
+  .trace-turn { margin-bottom: 16px; background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; }
+  .trace-turn-title { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
+  .trace-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; font-size: 12px; border-bottom: 1px dashed #f5f5f5; }
+  .trace-item:last-child { border-bottom: none; }
+  .trace-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; white-space: nowrap; min-width: 48px; text-align: center; }
+  .trace-badge.router { background: #e3f2fd; color: #1565c0; }
+  .trace-badge.agent { background: #f3e5f5; color: #7b1fa2; }
+  .trace-badge.rag { background: #e8f5e9; color: #2e7d32; }
+  .trace-badge.parse { background: #fff3e0; color: #e65100; }
+  .trace-badge.replanner { background: #fce4ec; color: #c62828; }
+  .trace-badge.compliance { background: #fff8e1; color: #f57f17; }
+  .trace-badge.terminate { background: #eceff1; color: #546e7a; }
+  .trace-detail { color: #555; line-height: 1.4; flex: 1; }
+  .trace-status { font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+  .trace-status.ok { background: #e8f5e9; color: #2e7d32; }
+  .trace-status.pass { background: #e8f5e9; color: #2e7d32; }
+  .slots-bar { padding: 8px 16px; background: #f0f4ff; border-top: 1px solid #e0e0e0; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .slot-tag { padding: 3px 8px; background: white; border: 1px solid #c7d2fe; border-radius: 10px; color: #3730a3; }
+  .quick-questions { padding: 8px 16px; background: #f9fafb; border-top: 1px solid #eee; display: flex; gap: 6px; flex-wrap: wrap; }
+  .quick-btn { padding: 4px 10px; background: white; border: 1px solid #ddd; border-radius: 12px; font-size: 12px; cursor: pointer; color: #555; }
+  .product-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 8px; font-size: 13px; }
+  .product-card h4 { font-size: 14px; color: #1e40af; margin-bottom: 6px; }
+  .product-card .specs { color: #475569; line-height: 1.6; }
+  .product-card .price { color: #dc2626; font-weight: 600; margin-top: 4px; }
+  .source-tag { display: inline-block; font-size: 10px; padding: 1px 5px; background: #dbeafe; color: #1e40af; border-radius: 3px; margin-left: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>电视选购 Copilot — Multi-Agent 导购系统</h1>
+  <span class="status">静态演示版</span>
+</header>
+<div class="demo-banner">
+  📺 这是静态演示页面，展示预填充的对话和 Agent 执行轨迹。完整可运行版本请 <a href="https://github.com/Alaraby527/tv-buying-copilot" target="_blank">克隆仓库本地运行</a>（零依赖，clone 即跑）。
+</div>
+<div class="main">
+  <div class="chat-panel">
+    <div class="chat-messages">
+      <div class="message user"><div class="bubble">预算4000，客厅2.5米，追剧看电影，推荐个电视</div></div>
+      <div class="message assistant">
+        <div class="bubble">根据你的需求（预算4000元、观看距离2.5米、追剧看电影），为你推荐以下2款75寸电视：
+<div class="product-card"><h4>🥇 TCL 75Q10G Pro <span class="source-tag">知识库·商品参数</span></h4><div class="specs">• 面板：Mini LED<br>• 分区：720分区<br>• 峰值亮度：2200nits<br>• 刷新率：144Hz</div><div class="price">参考价：¥3999</div></div>
+<div class="product-card"><h4>🥈 海信 75E8K <span class="source-tag">知识库·商品参数</span></h4><div class="specs">• 面板：Mini LED<br>• 分区：1056分区<br>• 峰值亮度：1600nits<br>• 刷新率：144Hz</div><div class="price">参考价：¥4299（略超预算）</div></div>
+**推荐理由：** 追剧看电影优先考虑画质，Mini LED的分区背光和高亮度能带来更好的明暗对比和HDR效果。
+⚠️ 以上参数和价格来自知识库静态数据，实际以商品详情页为准。</div>
+        <div class="meta">[product · 商品咨询]</div>
+      </div>
+      <div class="message user"><div class="bubble">这两款有什么优惠活动吗？</div></div>
+      <div class="message assistant">
+        <div class="bubble">当前可叠加的优惠活动如下 <span class="source-tag">知识库·促销规则</span>：
+**1. 国补（以旧换新）** 补贴比例：成交价的15%，上限2000元
+**2. 平台满减** 满3000减300，可与国补叠加
+**3. 会员券** PLUS会员满2000减100
+**以 TCL 75Q10G Pro（¥3999）为例：** 预估到手价 ≈ ¥2999
+⚠️ 优惠规则可能随时变化，最终以结算页为准。</div>
+        <div class="meta">[promotion · 比价优惠]</div>
+      </div>
+      <div class="message user"><div class="bubble">如果买了之后想退货怎么办？</div></div>
+      <div class="message assistant">
+        <div class="bubble">🔔 退货属于售后高风险场景，已为你转接人工客服。
+请通过以下方式联系人工客服：• 在线客服：商品页右下角「客服」图标 • 电话客服：400-xxx-xxxx
+人工客服会为你确认退货条件、运费承担、退款流程等具体事宜。</div>
+        <div class="meta">[aftersales · 售后客服 → 强制转人工]</div>
+      </div>
+    </div>
+    <div class="quick-questions"><span class="quick-btn">追剧推荐</span><span class="quick-btn">游戏电视</span><span class="quick-btn">优惠查询</span><span class="quick-btn">配送安装</span><span class="quick-btn">售后转人工</span></div>
+    <div class="slots-bar"><span class="slot-tag">预算：¥4000</span><span class="slot-tag">尺寸/距离：2.5米 → 75寸</span><span class="slot-tag">用途：追剧、看电影</span></div>
+    <div class="chat-input"><input type="text" placeholder="静态演示版，输入框不可用 — 请克隆仓库本地运行完整版本" disabled><button disabled>发送</button></div>
+  </div>
+  <div class="trace-panel">
+    <div class="trace-header"><span>执行轨迹（Agent 调用链）</span></div>
+    <div class="trace-content">
+      <div class="trace-turn"><div class="trace-turn-title">第 1 轮 · 预算4000，客厅2.5米...</div>
+        <div class="trace-item"><span class="trace-badge parse">NeedParser</span><span class="trace-detail">解析需求：预算=4000，距离=2.5米→75寸</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge router">MasterRouter</span><span class="trace-detail">意图分类：product，置信度0.95</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge agent">ProductAgent</span><span class="trace-detail">调用商品参数Agent，加载知识库</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge rag">RAG检索</span><span class="trace-detail">Top-3检索：TCL 75Q10G Pro、海信75E8K、小米S Pro 75</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge replanner">Replanner</span><span class="trace-detail">硬约束检查：预算✓ 尺寸✓ 库存✓ → 通过</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge compliance">Compliance</span><span class="trace-detail">合规审核：5条红线通过，无幻觉</span><span class="trace-status pass">pass</span></div>
+        <div class="trace-item"><span class="trace-badge terminate">Terminate</span><span class="trace-detail">正常终止</span><span class="trace-status ok">ok</span></div>
+      </div>
+      <div class="trace-turn"><div class="trace-turn-title">第 2 轮 · 这两款有什么优惠活动吗？</div>
+        <div class="trace-item"><span class="trace-badge router">MasterRouter</span><span class="trace-detail">意图分类：promotion，置信度0.92</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge agent">PromotionAgent</span><span class="trace-detail">加载促销规则知识库</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge rag">RAG检索</span><span class="trace-detail">检索：国补、平台满减、会员券</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge compliance">Compliance</span><span class="trace-detail">标注"以结算页为准" → 通过</span><span class="trace-status pass">pass</span></div>
+        <div class="trace-item"><span class="trace-badge terminate">Terminate</span><span class="trace-detail">正常终止</span><span class="trace-status ok">ok</span></div>
+      </div>
+      <div class="trace-turn"><div class="trace-turn-title">第 3 轮 · 如果买了之后想退货怎么办？</div>
+        <div class="trace-item"><span class="trace-badge router">MasterRouter</span><span class="trace-detail">意图分类：aftersales，置信度0.98</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge agent">AfterSalesAgent</span><span class="trace-detail">触发强制转人工规则</span><span class="trace-status ok">ok</span></div>
+        <div class="trace-item"><span class="trace-badge terminate">Terminate</span><span class="trace-detail">中断终止：售后高风险 → 转人工</span><span class="trace-status ok">ok</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

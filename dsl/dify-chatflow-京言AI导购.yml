@@ -1,0 +1,841 @@
+version: "0.6.0"
+kind: app
+app:
+  name: "京言·3C家电AI导购Agent"
+  mode: advanced-chat
+  icon: "\U0001F6D2"
+  icon_background: "#E0F2FE"
+  icon_type: emoji
+  description: "京东3C家电AI导购Agent，多智能体协同：意图识别→商品检索→优惠计算→履约咨询→售后客服，含合规审核兜底"
+  use_icon_as_answer_icon: false
+dependencies: []
+workflow:
+  environment_variables: []
+  conversation_variables: []
+  features:
+    file_upload:
+      enabled: false
+      allowed_file_types:
+      - image
+      allowed_file_extensions:
+      - .JPG
+      - .PNG
+      - .JPEG
+      - .WEBP
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      number_limits: 3
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+    opening_statement: "您好！我是京言AI导购助手，专注3C家电选购。我可以帮您：\n1. 推荐/对比电视，翻译专业参数\n2. 查询优惠、计算到手价\n3. 解答安装、物流、以旧换新问题\n4. 售后政策咨询\n\n请问有什么可以帮您？"
+    suggested_questions:
+    - "推荐个75寸电视，预算6000，放客厅"
+    - "Mini LED和OLED有什么区别？"
+    - "TCL 75Q10G Pro和海信75E8K哪个好？"
+    - "挂装电视多少钱？"
+    suggested_questions_after_answer:
+      enabled: true
+    speech_to_text:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+  graph:
+    edges:
+    - id: "edge-start-classifier"
+      source: "start_node"
+      sourceHandle: "source"
+      target: "classifier_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "start"
+        targetType: "question-classifier"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-product"
+      source: "classifier_node"
+      sourceHandle: "product"
+      target: "retrieval_product"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "knowledge-retrieval"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-pricing"
+      source: "classifier_node"
+      sourceHandle: "pricing"
+      target: "retrieval_pricing"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "knowledge-retrieval"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-fulfillment"
+      source: "classifier_node"
+      sourceHandle: "fulfillment"
+      target: "retrieval_fulfillment"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "knowledge-retrieval"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-aftersales"
+      source: "classifier_node"
+      sourceHandle: "aftersales"
+      target: "retrieval_aftersales"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "knowledge-retrieval"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-unclear"
+      source: "classifier_node"
+      sourceHandle: "unclear"
+      target: "llm_unclear"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-classifier-other"
+      source: "classifier_node"
+      sourceHandle: "other"
+      target: "llm_other"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "question-classifier"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-retrieval-product-llm"
+      source: "retrieval_product"
+      sourceHandle: "source"
+      target: "llm_product"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "knowledge-retrieval"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-retrieval-pricing-llm"
+      source: "retrieval_pricing"
+      sourceHandle: "source"
+      target: "llm_pricing"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "knowledge-retrieval"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-retrieval-fulfillment-llm"
+      source: "retrieval_fulfillment"
+      sourceHandle: "source"
+      target: "llm_fulfillment"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "knowledge-retrieval"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-retrieval-aftersales-llm"
+      source: "retrieval_aftersales"
+      sourceHandle: "source"
+      target: "llm_aftersales"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "knowledge-retrieval"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-product-aggregator"
+      source: "llm_product"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-pricing-aggregator"
+      source: "llm_pricing"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-fulfillment-aggregator"
+      source: "llm_fulfillment"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-aftersales-aggregator"
+      source: "llm_aftersales"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-unclear-aggregator"
+      source: "llm_unclear"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-llm-other-aggregator"
+      source: "llm_other"
+      sourceHandle: "source"
+      target: "aggregator_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "variable-aggregator"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-aggregator-compliance"
+      source: "aggregator_node"
+      sourceHandle: "source"
+      target: "llm_compliance"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "variable-aggregator"
+        targetType: "llm"
+        isInIteration: false
+        isInLoop: false
+    - id: "edge-compliance-answer"
+      source: "llm_compliance"
+      sourceHandle: "source"
+      target: "answer_node"
+      targetHandle: "target"
+      type: "custom"
+      data:
+        sourceType: "llm"
+        targetType: "answer"
+        isInIteration: false
+        isInLoop: false
+    nodes:
+    - id: "start_node"
+      type: "custom"
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      width: 244
+      height: 90
+      data:
+        type: "start"
+        title: "开始"
+        desc: ""
+        variables: []
+    - id: "classifier_node"
+      type: "custom"
+      position:
+        x: 380
+        y: 282
+      positionAbsolute:
+        x: 380
+        y: 282
+      width: 244
+      height: 150
+      data:
+        type: "question-classifier"
+        title: "意图识别"
+        desc: "识别用户意图并路由到对应Agent"
+        query_variable_selector:
+        - "sys"
+        - "query"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0
+        classes:
+        - id: "product"
+          name: "商品咨询（推荐/参数/对比）"
+        - id: "pricing"
+          name: "价格优惠（价格/优惠/库存/价保）"
+        - id: "fulfillment"
+          name: "安装履约（安装/物流/入户/以旧换新）"
+        - id: "aftersales"
+          name: "售后服务（退换货/保修/投诉）"
+        - id: "unclear"
+          name: "需求模糊（信息不足）"
+        - id: "other"
+          name: "其他（闲聊/超范围/违规）"
+        instruction: |
+          你是京东3C家电AI导购的意图识别模块。根据用户消息判断意图类别。
+
+          分类标准：
+          - product：询问电视推荐、参数、型号对比、画质技术、尺寸选择、品牌比较
+          - pricing：询问价格、优惠、满减、国补、以旧换新金额、库存、价保、到手价
+          - fulfillment：询问安装方式/费用、物流配送、入户尺寸、送装一体、以旧换新流程
+          - aftersales：询问退换货政策、保修、投诉、维修、退款
+          - unclear：需求不完整，如"推荐个电视"（没说尺寸/预算/场景）、"这个怎么样"（没说哪个）
+          - other：闲聊、与3C家电无关、违规内容、辱骂
+
+          注意：
+          - "以旧换新"如果问的是估价/金额→pricing；如果问的是流程/上门回收→fulfillment
+          - "挂装多少钱"→fulfillment（安装服务）
+          - "有货吗"→pricing（库存查询）
+          - 用户情绪激动/投诉→aftersales
+        _targetBranches:
+        - id: "product"
+          name: "商品咨询（推荐/参数/对比）"
+        - id: "pricing"
+          name: "价格优惠（价格/优惠/库存/价保）"
+        - id: "fulfillment"
+          name: "安装履约（安装/物流/入户/以旧换新）"
+        - id: "aftersales"
+          name: "售后服务（退换货/保修/投诉）"
+        - id: "unclear"
+          name: "需求模糊（信息不足）"
+        - id: "other"
+          name: "其他（闲聊/超范围/违规）"
+        vision:
+          enabled: false
+    - id: "retrieval_product"
+      type: "custom"
+      position:
+        x: 700
+        y: 60
+      positionAbsolute:
+        x: 700
+        y: 60
+      width: 244
+      height: 90
+      data:
+        type: "knowledge-retrieval"
+        title: "商品知识检索"
+        desc: "检索商品参数库（导入后请选择商品参数知识库）"
+        query_variable_selector:
+        - "sys"
+        - "query"
+        dataset_ids: []
+        retrieval_mode: "multiple"
+        multiple_retrieval_config:
+          top_k: 6
+          score_threshold: 0.5
+          reranking_enable: false
+        metadata_filtering_mode: "disabled"
+    - id: "llm_product"
+      type: "custom"
+      position:
+        x: 1000
+        y: 60
+      positionAbsolute:
+        x: 1000
+        y: 60
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "商品参数Agent"
+        desc: "回答商品参数/推荐/对比问题"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.3
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电的商品参数专家。基于检索到的知识库内容回答用户问题。
+
+            ## 核心规则
+            1. 所有参数必须来自知识库，禁止编造知识库中没有的参数
+            2. 每个参数回答后标注来源（参数来源：京东家电知识库）
+            3. 把专业术语翻译成用户能感知的效果：
+               - "1300nits峰值亮度"→"白天不拉窗帘也能看清画面"
+               - "HDMI 2.1满血48Gbps"→"支持4K 120Hz，接PS5玩游戏画面不卡顿"
+            4. 对比两款以上商品时用表格呈现核心差异，给出场景化建议
+            5. 推荐时输出2-3款，每款含核心卖点、适配理由、关键参数
+            6. 不做主观排名，不贬低任何品牌
+            7. 参数类问题末尾标注"具体参数以商品详情页为准"
+            8. 知识库未命中时说"该参数暂未收录，建议以商品详情页为准"，不要猜测
+            9. 结合对话历史理解用户追问中的指代（如"这款""它"）
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: true
+          variable_selector:
+          - "retrieval_product"
+          - "result"
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: true
+            size: 5
+    - id: "retrieval_pricing"
+      type: "custom"
+      position:
+        x: 700
+        y: 170
+      positionAbsolute:
+        x: 700
+        y: 170
+      width: 244
+      height: 90
+      data:
+        type: "knowledge-retrieval"
+        title: "促销规则检索"
+        desc: "检索优惠活动规则（导入后请选择促销规则知识库）"
+        query_variable_selector:
+        - "sys"
+        - "query"
+        dataset_ids: []
+        retrieval_mode: "multiple"
+        multiple_retrieval_config:
+          top_k: 4
+          score_threshold: 0.5
+          reranking_enable: false
+        metadata_filtering_mode: "disabled"
+    - id: "llm_pricing"
+      type: "custom"
+      position:
+        x: 1000
+        y: 170
+      positionAbsolute:
+        x: 1000
+        y: 170
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "比价优惠Agent"
+        desc: "计算优惠/到手价/价保"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.2
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电的比价优惠助手。基于知识库中的优惠规则回答价格问题。
+
+            ## 核心规则
+            1. 你不知道实时价格，所有具体价格引导用户查看商品页
+            2. 优惠计算要透明：逐项列出满减、PLUS券、以旧换新、国补
+            3. 格式示例：原价 - 满减 - 券 - 以旧换新 - 国补 ≈ 到手价
+            4. 国补因地区/人/商品而异，标注"以结算页展示为准"
+            5. 明确说明哪些优惠可叠加、哪些互斥（满减和以旧换新二选一，系统自动选最优）
+            6. 主动提示价保政策（签收后7天内降价可退差价，大促30天）
+            7. 不承诺固定价格，不预测价格走势
+            8. 末尾标注"具体价格以商品详情页和结算页为准"
+            9. 结合对话历史，用户问"这款多少钱"时要知道指的是之前讨论的型号
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: true
+          variable_selector:
+          - "retrieval_pricing"
+          - "result"
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: true
+            size: 5
+    - id: "retrieval_fulfillment"
+      type: "custom"
+      position:
+        x: 700
+        y: 280
+      positionAbsolute:
+        x: 700
+        y: 280
+      width: 244
+      height: 90
+      data:
+        type: "knowledge-retrieval"
+        title: "服务承诺检索"
+        desc: "检索安装/物流/入户政策（导入后请选择服务承诺知识库）"
+        query_variable_selector:
+        - "sys"
+        - "query"
+        dataset_ids: []
+        retrieval_mode: "multiple"
+        multiple_retrieval_config:
+          top_k: 4
+          score_threshold: 0.5
+          reranking_enable: false
+        metadata_filtering_mode: "disabled"
+    - id: "llm_fulfillment"
+      type: "custom"
+      position:
+        x: 1000
+        y: 280
+      positionAbsolute:
+        x: 1000
+        y: 280
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "履约服务Agent"
+        desc: "回答安装/物流/入户/以旧换新"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.2
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电的履约服务助手。基于知识库回答物流、安装、入户问题。
+
+            ## 核心规则
+            1. 安装费用给参考区间，标注"以京东服务页实时报价为准"
+            2. 入户评估要询问电梯尺寸/楼道宽度/入户门宽度
+            3. 75寸包装约1800×1100×400mm，标准电梯（载重800kg以上）通常可放入
+            4. 不确定时引导预约免费上门勘测
+            5. 配送时效引用知识库，不承诺具体送达时刻，标注"以订单页预约时间为准"
+            6. 以旧换新说明流程：估价→上门回收→补贴抵扣，估价7天有效
+            7. 座装免费（随箱底座），挂装需另购挂架+上门服务
+            8. 结合对话历史理解型号指代
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: true
+          variable_selector:
+          - "retrieval_fulfillment"
+          - "result"
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: true
+            size: 5
+    - id: "retrieval_aftersales"
+      type: "custom"
+      position:
+        x: 700
+        y: 390
+      positionAbsolute:
+        x: 700
+        y: 390
+      width: 244
+      height: 90
+      data:
+        type: "knowledge-retrieval"
+        title: "售后规则检索"
+        desc: "检索退换货/保修政策（导入后请选择售后规则知识库）"
+        query_variable_selector:
+        - "sys"
+        - "query"
+        dataset_ids: []
+        retrieval_mode: "multiple"
+        multiple_retrieval_config:
+          top_k: 4
+          score_threshold: 0.5
+          reranking_enable: false
+        metadata_filtering_mode: "disabled"
+    - id: "llm_aftersales"
+      type: "custom"
+      position:
+        x: 1000
+        y: 390
+      positionAbsolute:
+        x: 1000
+        y: 390
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "售后客服Agent"
+        desc: "退换货/保修/投诉安抚/转人工"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.3
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电的售后客服助手。
+
+            ## 核心规则
+            1. 退换货/投诉/情绪激烈场景：不做任何承诺，先共情，然后立即引导转人工
+               话术："非常抱歉给您带来不好的体验，我马上为您转接人工客服处理，请稍候。"
+            2. 保修政策准确回答：整机1年、屏幕3年、主要部件3年
+            3. 不解释定责原因，不与用户争辩
+            4. 不冒充人工，不处理退款审核
+            5. 标准化政策问题（保修多久、怎么退货）可直接回答
+            6. 情绪激烈的用户先安抚再转人工，不辩解、不追问
+            7. 结合对话历史理解问题
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: true
+          variable_selector:
+          - "retrieval_aftersales"
+          - "result"
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: true
+            size: 5
+    - id: "llm_unclear"
+      type: "custom"
+      position:
+        x: 700
+        y: 500
+      positionAbsolute:
+        x: 700
+        y: 500
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "需求澄清Agent"
+        desc: "多轮追问补全用户需求"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.4
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电AI导购的需求澄清助手。用户需求模糊，你需要通过追问补全信息。
+
+            ## 追问规则
+            1. 最多追问3轮，每轮只问1-2个问题
+            2. 优先追问必要信息：使用场景、预算区间、尺寸
+            3. 其次追问偏好：品牌、画质需求
+            4. 给选项而非开放式问题，降低用户回答成本
+            5. 自然口语化，不要像填表
+            6. 至少自然植入一次京东自营优势（次日达/7天无理由/价保）
+            7. 用户说"随便/不知道"时，给默认推荐（55-65寸主流档，3000-5000元）并标注可调整
+
+            ## 话术示例
+            "我先问两个小问题帮您精准选款～您主要用来做什么呀？[客厅追剧/打游戏/给长辈用] 另外预算大概在哪个区间呢？[3000以内/3000-5000/5000-8000/8000以上]"
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: true
+            size: 5
+    - id: "llm_other"
+      type: "custom"
+      position:
+        x: 700
+        y: 610
+      positionAbsolute:
+        x: 700
+        y: 610
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "兜底回复"
+        desc: "超范围/闲聊/违规内容处理"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0.5
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东3C家电AI导购助手。对于超出3C家电服务范围的问题：
+            1. 礼貌说明服务范围
+            2. 引导用户回到家电选购话题
+            3. 不回答无关问题，不编造信息
+            4. 违规/辱骂内容不做正面回应，礼貌引导
+
+            话术示例：
+            - 闲聊："哈哈，我主要擅长3C家电选购咨询，如果您在看电视或其他家电，我可以帮您推荐和对比哦！"
+            - 超范围："抱歉，这个问题超出我的服务范围了。我可以帮您推荐电视、对比参数、查询优惠，有需要随时说～"
+            - 违规："请文明交流哦，如果您有家电选购方面的问题，我很乐意帮忙。"
+        - role: "user"
+          text: "{{#sys.query#}}"
+        variables: []
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: false
+            size: 10
+    - id: "aggregator_node"
+      type: "custom"
+      position:
+        x: 1300
+        y: 282
+      positionAbsolute:
+        x: 1300
+        y: 282
+      width: 244
+      height: 90
+      data:
+        type: "variable-aggregator"
+        title: "结果汇聚"
+        desc: "汇聚各分支Agent的回答"
+        output_type: "string"
+        variables:
+        - - "llm_product"
+          - "text"
+        - - "llm_pricing"
+          - "text"
+        - - "llm_fulfillment"
+          - "text"
+        - - "llm_aftersales"
+          - "text"
+        - - "llm_unclear"
+          - "text"
+        - - "llm_other"
+          - "text"
+        advanced_settings:
+          group_enabled: false
+          groups: []
+    - id: "llm_compliance"
+      type: "custom"
+      position:
+        x: 1600
+        y: 282
+      positionAbsolute:
+        x: 1600
+        y: 282
+      width: 244
+      height: 90
+      data:
+        type: "llm"
+        title: "合规审核"
+        desc: "Reflection自检：检查红线并修正"
+        model:
+          provider: ""
+          name: ""
+          mode: "chat"
+          completion_params:
+            temperature: 0
+        prompt_template:
+        - role: "system"
+          text: |
+            你是京东AI导购的内容合规审核员。检查待发送的回答是否违规，输出最终可发送给用户的文本。
+
+            ## 5条红线
+            1. 编造参数/价格/政策（知识库没有的事实性内容）
+            2. 绝对承诺（"保证明天到""一定最低价""肯定没问题"）
+            3. 贬低任何品牌或竞品
+            4. 泄露内部数据
+            5. 违规内容（辱骂、歧视、敏感内容）
+
+            ## 价格/参数/政策类额外检查
+            - 是否有"以商品页/订单页/结算页为准"的免责标注？没有则补充。
+
+            ## 输出规则
+            - 如果回答完全合规：原样输出，不做任何修改
+            - 如果有违规：删除违规内容、补充免责标注后输出修正版
+            - 如果回答包含内部推理过程（如"让我查一下"）：删除后输出干净的回答
+            - 直接输出最终文本，不要加"审核通过"等说明，不要输出JSON
+        - role: "user"
+          text: "待审核回答：\n{{#aggregator_node.output#}}"
+        variables: []
+        context:
+          enabled: false
+          variable_selector: []
+        vision:
+          enabled: false
+        memory:
+          query_prompt_template: "{{#sys.query#}}\n\n{{#sys.files#}}"
+          window:
+            enabled: false
+            size: 10
+    - id: "answer_node"
+      type: "custom"
+      position:
+        x: 1900
+        y: 282
+      positionAbsolute:
+        x: 1900
+        y: 282
+      width: 244
+      height: 90
+      data:
+        type: "answer"
+        title: "最终回复"
+        desc: "输出审核后的回答"
+        answer: "{{#llm_compliance.text#}}"
+        variables: []
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.6

@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.request
 import time
 
@@ -115,7 +116,8 @@ for tid, query, expected in multi_turn:
     time.sleep(1)
 
 # Save JSON
-with open(r"D:\豆包内容生成\京东项目\eval-results-v1.1.json", "w", encoding="utf-8") as f:
+out_dir = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(out_dir, "eval-results-v1.1.json"), "w", encoding="utf-8") as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 
 # Save Markdown
@@ -128,7 +130,7 @@ for r in results:
     else:
         md += f"- Tokens: {r['tokens']}\n\n{r['answer']}\n\n---\n\n"
 
-with open(r"D:\豆包内容生成\京东项目\eval-results-v1.1.md", "w", encoding="utf-8") as f:
+with open(os.path.join(out_dir, "eval-results-v1.1.md"), "w", encoding="utf-8") as f:
     f.write(md)
 
 print("\n" + "=" * 60)

@@ -6,7 +6,7 @@
 ## 技术约束
 - Python 3.10+，零第三方依赖（仅标准库）
 - LLM 走 OpenAI-compatible API，无 Key 时降级确定性演示
-- 所有文件保存到 D:\ai\tv-shopping-copilot\
+- 所有文件保存在仓库内，使用相对路径，不依赖任何机器特定的盘符或绝对路径
 
 ## 架构决策记录
 

@@ -3,7 +3,9 @@ import os
 import urllib.request
 import time
 
-API_KEY = ""
+API_KEY = os.getenv("DIFY_API_KEY", "")
+if not API_KEY:
+    raise SystemExit("请先设置 DIFY_API_KEY；该脚本会调用外部模型服务，离线冒烟请运行 python eval.py")
 BASE_URL = "https://api.dify.ai/v1"
 
 test_cases = [
